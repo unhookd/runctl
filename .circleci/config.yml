@@ -1,0 +1,34 @@
+workflows:
+  version: 2
+  build:
+    jobs:
+      - primary
+
+defaults: &defaults
+  working_directory: /home/app/current
+  environment: &environment_defaults
+    CUSTOM: "settings"
+  docker:
+    - image: &build_image ubuntu:bionic-20180526
+
+version: 2
+jobs:
+  primary:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - run:
+          name: bootstrap
+          command: |
+            set -e
+
+            bash bin/bootstrap.sh
+
+      - run:
+          name: rspec
+          command: |
+            set -e
+
+            bundle install --path=vendor/bundle
+            bundle exec rspec
