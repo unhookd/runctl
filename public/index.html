@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>runctl</title>
+    <style>
+      div { }
+      ul { }
+      li { }
+      p { }
+      pre { width: 120ch; height: 80ch; background-color: black; color: white; overflow: auto; }
+    </style>
+    <script src="morphdom-umd-2.5.10.js"></script>
+  </head>
+  <body>
+    <script>
+      var dashboardContainer = document.createElement("div");
+      document.body.appendChild(dashboardContainer);
+
+      var indicateProgress = function(element) {
+        var progressIndicator = document.createElement("progress");
+
+        while (element.firstChild) {
+          element.removeChild(element.firstChild);
+        }
+
+        element.appendChild(progressIndicator);
+      };
+
+      var refreshIndex = function(firstTime) {
+        if(firstTime) {
+          indicateProgress(dashboardContainer);
+        }
+  
+        fetch('/')
+        .then(response => {
+          return response.text()
+        })
+        .then(dashboardHtml => {
+          morphdom(dashboardContainer, dashboardHtml);
+          setTimeout(refreshIndex, 1000);
+        })
+        .catch(e => {
+          console.log('There has been a problem with your fetch operation: ' + e.message);
+          indicateProgress(dashboardContainer);
+        });
+      };
+
+      refreshIndex(true);
+    </script>
+  </body>
+</html>

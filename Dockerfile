@@ -6,6 +6,7 @@ RUN /var/tmp/bootstrap.sh
 
 COPY --chown=app Gemfile Gemfile.lock /var/tmp/runctl/
 COPY --chown=app lib /var/tmp/runctl/lib
+COPY --chown=app public /var/tmp/runctl/public
 
 WORKDIR /var/tmp/runctl
 
