@@ -3,13 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>runctl</title>
-    <style>
-      div { }
-      ul { }
-      li { }
-      p { }
-      pre { width: 120ch; height: 80ch; background-color: black; color: white; overflow: auto; }
-    </style>
+    <link href="vanilla.css" rel="stylesheet" type="text/css">
     <script src="morphdom-umd-2.5.10.js"></script>
   </head>
   <body>
@@ -37,7 +31,30 @@
           return response.text()
         })
         .then(dashboardHtml => {
-          morphdom(dashboardContainer, dashboardHtml);
+          morphdom(dashboardContainer, dashboardHtml, {
+            childrenOnly: true,
+            onNodeAdded: function(el) {
+              el.scrollTop = el.scrollHeight;
+            },
+            onBeforeElUpdated: function(fromEl, toEl) {
+              if (fromEl.isEqualNode(toEl)) {
+                return false
+              }
+
+              return true
+            },
+            onElUpdated: function(el) {
+              if (el.className === 'terminal') {
+                setTimeout(function() {
+                  el.scrollTop = el.scrollHeight;
+                  el.classList.add('terminal-pinged');
+                  setTimeout(function() {
+                    el.classList.remove('terminal-pinged');
+                  }, 333);
+                }, 33);
+              }
+            }
+          });
           setTimeout(refreshIndex, 1000);
         })
         .catch(e => {

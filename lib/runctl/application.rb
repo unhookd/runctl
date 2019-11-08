@@ -9,15 +9,21 @@ module Runctl
       mab = Markaby::Builder.new
       mab.div do
         mab.h1 "runctl"
-        mab.span Time.now.to_s
         mab.ul do
           DataSource.instance.pods.each do |pod|
             mab.li do
-              mab.p "namespace=#{pod.metadata.namespace} pod: #{pod.metadata.name} node=#{pod.spec.nodeName}"
-              output = DataSource.instance.ansi(DataSource.instance.logs(pod.metadata.name))
+              last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
+              mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
+              output = DataSource.instance.ansi(DataSource.instance.logs(pod, last_sc.message))
               if output.length > 0
+                mab.div.terminal do
+                  mab.div(:class => "term-container") do
+                    output
+                  end
+                end
+              else
                 mab.pre do
-                  output
+                  pod.status.containerStatuses
                 end
               end
             end

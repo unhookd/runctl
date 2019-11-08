@@ -8,32 +8,39 @@ class DataSource
   end
 
   def pods
-    @client.api('v1').resource('pods', namespace: 'default').list
+    @client.api('v1').resource('pods', namespace: 'default').list.sort_by { |a|
+      a.metadata.creationTimestamp
+    }.reverse
     #.each do |pod|
     #(labelSelector: {'role' => 'test'})
     #  puts "namespace=#{pod.metadata.namespace} pod: #{pod.metadata.name} node=#{pod.spec.nodeName}"
     #end
   end
 
-  def logs(pod)
-		all_log_output = ""
-		@client.transport.get(
-			['api', 'v1', 'namespaces', 'default', 'pods', pod, 'log'],
-			query: {
-				follow: '0'
-			},
-			response_block: lambda do |chunk, _, _|
-				all_log_output << chunk
-			end
-		)
-		all_log_output
+  def logs(pod, has_message)
+    #puts [pod.metadata, pod.status]
+    if pod.status.phase == "Running" && has_message == nil
+      all_log_output = ""
+      @client.transport.get(
+        ['api', 'v1', 'namespaces', 'default', 'pods', pod.metadata.name, 'log'],
+        query: {
+          follow: '0'
+        },
+        response_block: lambda do |chunk, _, _|
+          all_log_output << chunk
+        end
+      )
+      all_log_output
+    end
 	end
 
   def ansi(txt)
+    txt
     aha_options = {:stdin_data => txt}
     #aha_cmd = ["aha", "--no-header", "-s", "-b", "-w"]
-    #aha_cmd = ["cat"]
-    aha_cmd = "bash bin/ansi2html.sh --bg=dark --palette=linux --body-only"
+    ##aha_cmd = ["cat"]
+    #aha_cmd = "bash bin/ansi2html.sh --bg=dark --palette=linux --body-only"
+    aha_cmd = ["vendor/bin/terminal-to-html-3.3.0-linux-amd64"]
     r = silentx(aha_cmd, aha_options)
     r
   end
