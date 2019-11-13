@@ -32,5 +32,7 @@ then
   id app || (useradd -G sudo --home-dir /home/app --create-home --shell /bin/bash app || fullstop failed to create app user)
   mkdir -p /home/app/current && chown app. /home/app/current || fullstop failed to create app dir
 
+  #https://github.com/buildkite/terminal-to-html/releases/download/v3.3.0/terminal-to-html-3.3.0-linux-amd64.gz
+
   touch ${THIS_CHKSUM_ARTIFACT}
 fi
