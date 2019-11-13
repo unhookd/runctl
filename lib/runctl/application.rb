@@ -7,9 +7,9 @@ module Runctl
 
     get '/' do
       full_render = !params['p']
-      mab = Markaby::Builder.new
+      mabb = Markaby::Builder.new
 
-      dashboard_partial_proc = Proc.new {
+      dashboard_partial_proc = Proc.new { |mab|
         mab.div do
           mab.h1 "runctl"
           mab.ul do
@@ -36,21 +36,23 @@ module Runctl
       }
 
       if full_render
-        mab.html5("lang" => "en") do
-          mab.head do
-            mab.title("runctl")
-            mab.link("href" => "vanilla.css", "rel" => "stylesheet", "type" => "text/css")
-            mab.script("src" => "morphdom-umd-2.5.10.js") {}
-            mab.script("src" => "index.js") {}
+        mabb.html5("lang" => "en") do
+          mabb.head do
+            mabb.title("runctl")
+            mabb.link("href" => "vanilla.css", "rel" => "stylesheet", "type" => "text/css")
+            mabb.script("src" => "morphdom-umd-2.5.10.js") {}
+            mabb.script("src" => "index.js") {}
           end
 
-          mab.body(&dashboard_partial_proc)
+          mabb.body do
+            mabb.div("id" => "dashboard-container", &dashboard_partial_proc)
+          end
         end
       else
-        dashboard_partial_proc.call
+        dashboard_partial_proc.call(mabb)
       end
 
-      mab.to_s
+      mabb.to_s
     end
 
     get '/ztls' do
