@@ -6,4 +6,6 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'runctl'
 
+use Rack::Static, { :urls => ["/index.js", "/vanilla.css", "/morphdom-umd-2.5.10.js"], :root => 'public' }
+
 run Runctl::Application

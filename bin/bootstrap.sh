@@ -26,11 +26,13 @@ then
   (apt-get update \
     && apt-get upgrade --no-install-recommends -y \
     && apt-get install --no-install-recommends -y \
-         ruby2* ruby2*-dev libruby2* ruby-bundler rubygems-integration build-essential \
+         ruby2* ruby2*-dev libruby2* ruby-bundler rubygems-integration build-essential aha \
     && apt-get clean && rm -rf /var/lib/apt/lists/*) || fullstop failed to install ruby deps
 
   id app || (useradd -G sudo --home-dir /home/app --create-home --shell /bin/bash app || fullstop failed to create app user)
   mkdir -p /home/app/current && chown app. /home/app/current || fullstop failed to create app dir
+
+  #https://github.com/buildkite/terminal-to-html/releases/download/v3.3.0/terminal-to-html-3.3.0-linux-amd64.gz
 
   touch ${THIS_CHKSUM_ARTIFACT}
 fi
