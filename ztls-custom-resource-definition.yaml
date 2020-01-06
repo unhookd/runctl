@@ -1,0 +1,12 @@
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: ztls.unctl.unhookd.io
+spec:
+  group: unctl.unhookd.io
+  version: v0
+  names:
+    kind: ZeroTrustLookup
+    plural: ztls
+  scope: Namespaced

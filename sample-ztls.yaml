@@ -1,0 +1,37 @@
+---
+apiVersion: unctl.unhookd.io/v0
+kind: ZeroTrustLookup
+metadata:
+  name: ex
+  namespace: default
+spec:
+  sample-app:
+    production:
+      release: sample-app
+      namespace: sample-app
+      repo: unhookd/sample-app
+      branch: master
+      trigger: webhook
+      strategy:
+        helm:
+          image: base-deployment-image:latest
+          chart: sample-app
+      notifications:
+        - provider: slack
+          channel: "#devops"
+          text: "Deployed kube hello world for production"
+  other-app:
+    production:
+      release: sample-app
+      namespace: sample-app
+      repo: unhookd/sample-app
+      branch: master
+      trigger: webhook
+      strategy:
+        helm:
+          image: base-deployment-image:latest
+          chart: sample-app
+      notifications:
+        - provider: slack
+          channel: "#devops"
+          text: "Deployed kube hello world for production"
