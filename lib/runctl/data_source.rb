@@ -4,7 +4,8 @@ class DataSource
   include Singleton
 
   def initialize
-    @client = K8s::Client.config(K8s::Config.load_file('~/.kube/kubeadm_config'))
+    #@client = K8s::Client.config(K8s::Config.load_file('~/.kube/kubeadm_config'))
+    @client = K8s::Client.in_cluster_config
   end
 
   def pods
@@ -35,19 +36,22 @@ class DataSource
 	end
 
   def ansi(txt)
-    txt
-    aha_options = {:stdin_data => txt}
-    #aha_cmd = ["aha", "--no-header", "-s", "-b", "-w"]
-    ##aha_cmd = ["cat"]
-    #aha_cmd = "bash bin/ansi2html.sh --bg=dark --palette=linux --body-only"
-    aha_cmd = ["vendor/bin/terminal-to-html-3.3.0-linux-amd64"]
-    r = silentx(aha_cmd, aha_options)
-    r
+    if txt
+      aha_options = {:stdin_data => txt}
+      #aha_cmd = ["aha", "--no-header", "-s", "-b", "-w"]
+      ##aha_cmd = ["cat"]
+      #aha_cmd = "bash bin/ansi2html.sh --bg=dark --palette=linux --body-only"
+      aha_cmd = ["vendor/bin/terminal-to-html-3.3.0-linux-amd64"]
+      r = silentx(aha_cmd, aha_options)
+      r || ""
+    end
   end
 
   def silentx(cmd, options)
     o, e, s = Open3.capture3(*cmd, options)
-    s.success?
-    return o
+    if s
+      s.success?
+    end
+    return o || ""
   end
 end
