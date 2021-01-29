@@ -10,27 +10,38 @@ module Runctl
       mabb = Markaby::Builder.new
 
       dashboard_partial_proc = Proc.new { |mab|
-        mab.div do
-          mab.h1 "runctl"
-          mab.ul do
-            DataSource.instance.pods.each do |pod|
-              mab.li do
-                last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
-                mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
-                output = DataSource.instance.ansi(DataSource.instance.logs(pod, last_sc.message))
-                if output.length > 0
-                  mab.div.terminal do
-                    mab.div(:class => "term-container") do
-                      output
-                    end
-                  end
-                else
-                  mab.pre do
-                    pod.status.containerStatuses
-                  end
-                end
-              end
-            end
+        #mab.div do
+        #  mab.h1 "runctl"
+        #  mab.ul do
+        #    DataSource.instance.pods.each do |pod|
+        #      mab.li do
+        #        last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
+        #        mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
+        #        output = DataSource.instance.ansi(DataSource.instance.logs(pod, last_sc.message))
+        #        if output.length > 0
+        #          mab.div.terminal do
+        #            mab.div(:class => "term-container") do
+        #              output
+        #            end
+        #          end
+        #        else
+        #          mab.pre do
+        #            pod.status.containerStatuses
+        #          end
+        #        end
+        #      end
+        #    end
+        #  end
+        #end
+
+        raw_output = IO.popen({"COLUMNS" => "80", "LINES" => "48"}, "top -b -n 1")
+        Process.wait rescue Errno::ECHILD
+
+        output = DataSource.instance.ansi(raw_output) 
+
+        mab.div.terminal do
+          mab.div(:class => "term-container") do
+            output
           end
         end
       }
