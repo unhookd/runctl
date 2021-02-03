@@ -19,14 +19,15 @@ class DataSource
     #end
   end
 
-  def logs(pod, has_message)
+  def logs(pod, container, has_message)
     #puts [pod.metadata, pod.status]
-    if pod.status.phase == "Running" && has_message == nil
+    if (pod.status.phase == "Running" || pod.status.phase == "Succeeded") && has_message == nil
       all_log_output = ""
       @client.transport.get(
         ['api', 'v1', 'namespaces', 'default', 'pods', pod.metadata.name, 'log'],
         query: {
-          follow: '0'
+          follow: '0',
+          container: container
         },
         response_block: lambda do |chunk, _, _|
           all_log_output << chunk

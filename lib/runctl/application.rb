@@ -7,43 +7,72 @@ module Runctl
 
     get '/' do
       full_render = !params['p']
+      selected_container = params['c']
+
       mabb = Markaby::Builder.new
 
-      dashboard_partial_proc = Proc.new { |mab|
-        #mab.div do
-        #  mab.h1 "runctl"
-        #  mab.ul do
-        #    DataSource.instance.pods.each do |pod|
-        #      mab.li do
-        #        last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
-        #        mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
-        #        output = DataSource.instance.ansi(DataSource.instance.logs(pod, last_sc.message))
-        #        if output.length > 0
-        #          mab.div.terminal do
-        #            mab.div(:class => "term-container") do
-        #              output
-        #            end
-        #          end
-        #        else
-        #          mab.pre do
-        #            pod.status.containerStatuses
-        #          end
-        #        end
-        #      end
-        #    end
-        #  end
-        #end
+      dashboard_partial_proc = Proc.new { |mab, sc|
+        mab.div do
+          mab.a(:href => "?") do
+            mab.h1 "runctl"
+          end
+          mab.ul do
+            DataSource.instance.pods.each do |pod|
+              mab.li do
+                #mab.p pod.inspect
+                if pod.status.conditions
+                  last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
+                  mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
 
-        raw_output = IO.popen({"COLUMNS" => "80", "LINES" => "48"}, "top -b -n 1")
-        Process.wait rescue Errno::ECHILD
+                  #mab.p pod.spec.containers.collect { |c| c.name }.inspect
+                  ((pod.spec.initContainers ? pod.spec.initContainers.collect { |c| c.name } : []) + pod.spec.containers.collect { |c| c.name }).each { |container_name|
 
-        output = DataSource.instance.ansi(raw_output) 
+                  #output = DataSource.instance.ansi(DataSource.instance.logs(pod, last_sc.message))
 
-        mab.div.terminal do
-          mab.div(:class => "term-container") do
-            output
+                    mab.a("href" => "?c=#{container_name}") do
+                      mab.p(container_name)
+                    end
+
+                    if sc == container_name
+                      if full_render
+                        #mab.div(:id => "jump")
+                        mab.div.ooo do
+                          mab.progress
+                        end
+                      else
+                        output = DataSource.instance.ansi(DataSource.instance.logs(pod, container_name, last_sc.message))
+                        if output && output.length > 0
+                          mab.div.ooo do
+                            mab.div.terminal do
+                              mab.div(:class => "term-container") do
+                                output
+                              end
+                            end
+                          end
+                        else
+                          mab.pre do
+                            pod.status.containerStatuses
+                          end
+                        end
+                      end
+                    end
+                  }
+                end
+              end
+            end
           end
         end
+
+        #raw_output = IO.popen({"COLUMNS" => "80", "LINES" => "48"}, "top -b -n 1")
+        #Process.wait rescue Errno::ECHILD
+
+        #output = DataSource.instance.ansi(raw_output) 
+
+        #mab.div.terminal do
+        #  mab.div(:class => "term-container") do
+        #    output
+        #  end
+        #end
       }
 
       if full_render
@@ -56,11 +85,14 @@ module Runctl
           end
 
           mabb.body do
-            mabb.div("id" => "dashboard-container", &dashboard_partial_proc)
+            mabb.div("id" => "dashboard-container") do
+             #, &dashboard_partial_proc)
+             dashboard_partial_proc.call(mabb, selected_container)
+            end
           end
         end
       else
-        dashboard_partial_proc.call(mabb)
+        dashboard_partial_proc.call(mabb, selected_container)
       end
 
       mabb.to_s

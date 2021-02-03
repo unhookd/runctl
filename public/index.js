@@ -16,10 +16,14 @@ window.addEventListener('DOMContentLoaded', (contentLoadedEvent) => {
 
   var refreshIndex = function(firstTime) {
     if(firstTime) {
-      indicateProgress(dashboardContainer);
+      //indicateProgress(dashboardContainer);
+      setTimeout(refreshIndex, 1000);
+      return;
     }
 
-    fetch('?p=1')
+    var searchParams = new URLSearchParams(window.location.search);
+
+    fetch('?p=1' + '&c=' + searchParams.get("c"))
     .then(response => {
       return response.text()
     })
@@ -39,17 +43,26 @@ window.addEventListener('DOMContentLoaded', (contentLoadedEvent) => {
         onElUpdated: function(el) {
           if (el.className === 'terminal') {
             setTimeout(function() {
-              el.scrollTop = el.scrollHeight;
+              //el.scrollTop = el.scrollHeight;
+
+              //if (Math.abs(el.getBoundingClientRect().bottom - window.innerHeight) < (window.innerHeight * 0.25)) {
+              //  el.scrollIntoView({behavior: "auto", block: "end", inline: "nearest"});
+              //}
+
+              //el.scrollIntoView(false);
+              //var ns = "margin-top: " + (-parseInt(el.clientHeight) + 256) + "px";
+              //el.style = ns;
+
               el.classList.add('terminal-pinged');
               setTimeout(function() {
                 el.classList.remove('terminal-pinged');
               }, 333);
-            }, 33);
+            }, 0);
           }
         }
       });
 
-      setTimeout(refreshIndex, 1000);
+      setTimeout(refreshIndex, 100);
     })
     .catch(e => {
       console.log('There has been a problem with your fetch operation: ' + e.message);

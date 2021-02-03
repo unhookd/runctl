@@ -2,24 +2,34 @@
 
 pre {
   padding: 1em;
-  max-width: 80ch;
-  max-height: 48ch;
-  overflow: auto;
   background-color: #e0e0e0;
+  overflow: auto;
+  width: 95%;
+}
+
+li {
+}
+
+.ooo {
+  overflow: auto;
+  max-height: 15em;
+  min-height: 10em;
+  width: 97%;
 }
 
 .terminal {
-  width: 80ch;
-  height: 48ch;
   overflow: auto;
-  transition: all 0.756s;
-  border: 1px solid white;
+  border: 3px solid grey;
+  scroll-margin: 1em;
+  transition: border 0.756s
+}
+
+#jump {
+  padding: 5em 0 5em 0;
+  margin-top: -3em;
 }
 
 .terminal-pinged {
-  /*
-  scroll-behavior: smooth;
-  */
   border: 3px solid yellow;
 }
 
@@ -29,12 +39,8 @@ pre {
   word-break: break-word;
   overflow-wrap: break-word;
   font-family: "SFMono-Regular", Monaco, Menlo, Consolas, "Liberation Mono", Courier, monospace;
-  font-size: 12px;
-  line-height: 20px;
   padding: 14px 18px;
   white-space: pre-wrap;
-  width: 80ch;
-  height: 48ch;
 }
 
 .term-container img { max-width: 100%; }
