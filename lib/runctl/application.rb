@@ -17,62 +17,88 @@ module Runctl
             mab.h1 "runctl"
           end
           mab.ul do
+            mab.li do
+              mab.a("href" => "?") do
+                "kubectl top nodes"
+              end
+
+              raw_output = IO.popen("kubectl top nodes")
+              Process.wait rescue Errno::ECHILD
+              output = DataSource.instance.ansi(raw_output) 
+              mab.div.terminal do
+                mab.div(:class => "term-container") do
+                  output +
+                  "\n\n" + Time.now.to_s
+                end
+              end
+
+              mab.a("href" => "?") do
+                "kubectl top pods --containers=true"
+              end
+
+              raw_output = IO.popen("kubectl top pods --containers=true")
+              Process.wait rescue Errno::ECHILD
+              output = DataSource.instance.ansi(raw_output) 
+              mab.div.terminal do
+                mab.div(:class => "term-container") do
+                  output +
+                  "\n\n" + Time.now.to_s
+                end
+              end
+            end
+
             DataSource.instance.pods.each do |pod|
               mab.li do
-                #mab.p pod.inspect
                 if pod.status.conditions
                   last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
                   mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
 
-                  #mab.p pod.spec.containers.collect { |c| c.name }.inspect
                   ((pod.spec.initContainers ? pod.spec.initContainers.collect { |c| c.name } : []) + pod.spec.containers.collect { |c| c.name }).each { |container_name|
-
-                  #output = DataSource.instance.ansi(DataSource.instance.logs(pod, last_sc.message))
 
                     mab.a("href" => "?c=#{container_name}") do
                       mab.p(container_name)
                     end
 
-                    if sc == container_name
-                      if full_render
-                        #mab.div(:id => "jump")
-                        mab.div.ooo do
-                          mab.progress
-                        end
-                      else
-                        output = DataSource.instance.ansi(DataSource.instance.logs(pod, container_name, last_sc.message))
-                        if output && output.length > 0
-                          mab.div.ooo do
-                            mab.div.terminal do
-                              mab.div(:class => "term-container") do
-                                output
-                              end
-                            end
-                          end
-                        else
-                          mab.pre do
-                            pod.status.containerStatuses
-                          end
-                        end
-                      end
-                    end
+                    #if sc == container_name
+                    #  if full_render
+                    #    mab.div.ooo do
+                    #      mab.progress
+                    #    end
+                    #  else
+                    #    output = DataSource.instance.ansi(DataSource.instance.logs(pod, container_name, last_sc.message))
+                    #    if output && output.length > 0
+                    #      mab.div.ooo do
+                    #        mab.div.terminal do
+                    #          mab.div(:class => "term-container") do
+                    #            output
+                    #          end
+                    #        end
+                    #      end
+                    #    else
+                    #      mab.pre do
+                    #        pod.status.containerStatuses
+                    #      end
+                    #    end
+                    #  end
+                    #end
                   }
                 end
               end
             end
+
+            #raw_output = IO.popen({"COLUMNS" => "80", "LINES" => "48"}, "top -b -n 1")
+            #Process.wait rescue Errno::ECHILD
+
+            #output = DataSource.instance.ansi(raw_output) 
+
+            #mab.div.terminal do
+            #  mab.div(:class => "term-container") do
+            #    output
+            #  end
+            #end
+
           end
         end
-
-        #raw_output = IO.popen({"COLUMNS" => "80", "LINES" => "48"}, "top -b -n 1")
-        #Process.wait rescue Errno::ECHILD
-
-        #output = DataSource.instance.ansi(raw_output) 
-
-        #mab.div.terminal do
-        #  mab.div(:class => "term-container") do
-        #    output
-        #  end
-        #end
       }
 
       if full_render
@@ -86,7 +112,6 @@ module Runctl
 
           mabb.body do
             mabb.div("id" => "dashboard-container") do
-             #, &dashboard_partial_proc)
              dashboard_partial_proc.call(mabb, selected_container)
             end
           end

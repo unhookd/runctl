@@ -40,9 +40,6 @@ class DataSource
   def ansi(txt)
     if txt
       aha_options = {:stdin_data => txt}
-      #aha_cmd = ["aha", "--no-header", "-s", "-b", "-w"]
-      ##aha_cmd = ["cat"]
-      #aha_cmd = "bash bin/ansi2html.sh --bg=dark --palette=linux --body-only"
       aha_cmd = ["vendor/bin/terminal-to-html-3.3.0-linux-amd64"]
       r = silentx(aha_cmd, aha_options)
       r || ""

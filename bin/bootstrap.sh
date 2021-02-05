@@ -26,8 +26,13 @@ then
   (apt-get update \
     && apt-get upgrade --no-install-recommends -y \
     && apt-get install --no-install-recommends -y \
-         ruby2* ruby2*-dev libruby2* ruby-bundler rubygems-integration build-essential aha awscli \
+         apt-utils software-properties-common dirmngr gpg gpg-agent ruby2* ruby2*-dev libruby2* ruby-bundler rubygems-integration build-essential aha awscli \
     && apt-get clean && rm -rf /var/lib/apt/lists/*) || fullstop failed to install ruby deps
+
+  apt-key adv --keyserver keyserver.ubuntu.com --recv 6A030B21BA07F4FB
+  apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+  apt-get ${APT_QQ} install --no-install-recommends -y -o APT::Immediate-Configure=false \
+    kubectl
 
   id app || (useradd -G sudo --home-dir /home/app --create-home --shell /bin/bash app || fullstop failed to create app user)
   mkdir -p /home/app/current && chown app. /home/app/current || fullstop failed to create app dir
