@@ -17,13 +17,13 @@ window.addEventListener('DOMContentLoaded', (contentLoadedEvent) => {
   var refreshIndex = function(firstTime) {
     if(firstTime) {
       //indicateProgress(dashboardContainer);
-      setTimeout(refreshIndex, 1000);
+      setTimeout(refreshIndex, 100);
       return;
     }
 
     var searchParams = new URLSearchParams(window.location.search);
 
-    fetch('?p=1' + '&c=' + searchParams.get("c"))
+    fetch('?p=1' + '&pod=' + (searchParams.get("pod") || '') + '&c=' + (searchParams.get("c") || ''))
     .then(response => {
       return response.text()
     })
@@ -49,7 +49,7 @@ window.addEventListener('DOMContentLoaded', (contentLoadedEvent) => {
               //  el.scrollIntoView({behavior: "auto", block: "end", inline: "nearest"});
               //}
 
-              //el.scrollIntoView(false);
+              el.scrollIntoView(false);
               //var ns = "margin-top: " + (-parseInt(el.clientHeight) + 256) + "px";
               //el.style = ns;
 
@@ -62,7 +62,7 @@ window.addEventListener('DOMContentLoaded', (contentLoadedEvent) => {
         }
       });
 
-      setTimeout(refreshIndex, 100);
+      setTimeout(refreshIndex, 500);
     })
     .catch(e => {
       console.log('There has been a problem with your fetch operation: ' + e.message);
