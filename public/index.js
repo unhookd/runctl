@@ -49,7 +49,7 @@ window.addEventListener('DOMContentLoaded', (contentLoadedEvent) => {
               //  el.scrollIntoView({behavior: "auto", block: "end", inline: "nearest"});
               //}
 
-              el.scrollIntoView(false);
+              //el.scrollIntoView(false);
               //var ns = "margin-top: " + (-parseInt(el.clientHeight) + 256) + "px";
               //el.style = ns;
 

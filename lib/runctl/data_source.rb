@@ -4,9 +4,9 @@ class DataSource
   include Singleton
 
   def initialize
-    @client = K8s::Client.config(K8s::Config.load_file('~/.kube/config'))
+    #@client = K8s::Client.config(K8s::Config.load_file('~/.kube/config'))
     #@client = K8s::Client.config(K8s::Config.load_file('~/.kube/kubeadm_config'))
-    #@client = K8s::Client.in_cluster_config
+    @client = K8s::Client.in_cluster_config
   end
 
   def pods

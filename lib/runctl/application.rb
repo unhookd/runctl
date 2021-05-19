@@ -56,90 +56,90 @@ module Runctl
             #  end
             #end
 
-            DataSource.instance.pods.each do |pod|
-              if !sp
-                mab.li do
-                  mab.a("href" => "?pod=#{pod.metadata.name}") do
-                    mab.em(pod.metadata.name)
-                  end
+            #DataSource.instance.pods.each do |pod|
+            #  if !sp
+            #    mab.li do
+            #      mab.a("href" => "?pod=#{pod.metadata.name}") do
+            #        mab.em(pod.metadata.name)
+            #      end
 
-                  last_sc = "n/a"
-                  if pod.status.conditions
-                    last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
-                  end
+            #      last_sc = "n/a"
+            #      if pod.status.conditions
+            #        last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
+            #      end
 
-                  mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
-                end
-              else
-                if !sc
-                  mab.li do
-                    mab.a("href" => "?pod=#{pod.metadata.name}") do
-                      mab.em(pod.metadata.name)
-                    end
+            #      mab.p "pod: #{pod.metadata.name} phase=#{pod.status.phase} #{last_sc.message}"
+            #    end
+            #  else
+            #    if !sc
+            #      mab.li do
+            #        mab.a("href" => "?pod=#{pod.metadata.name}") do
+            #          mab.em(pod.metadata.name)
+            #        end
 
-                    if sp == pod.metadata.name
-                      ((pod.spec.initContainers ? pod.spec.initContainers.collect { |c| c.name } : []) + pod.spec.containers.collect { |c| c.name }).each { |container_name|
-                        mab.a("href" => "?pod=#{pod.metadata.name}&c=#{container_name}") do
-                          mab.p(container_name)
-                        end
-                      }
-                    end
-                  end
-                else
-                  if sp == pod.metadata.name
-                    mab.li do
-                      mab.a("href" => "?pod=#{pod.metadata.name}") do
-                        mab.em(pod.metadata.name)
-                      end
+            #        if sp == pod.metadata.name
+            #          ((pod.spec.initContainers ? pod.spec.initContainers.collect { |c| c.name } : []) + pod.spec.containers.collect { |c| c.name }).each { |container_name|
+            #            mab.a("href" => "?pod=#{pod.metadata.name}&c=#{container_name}") do
+            #              mab.p(container_name)
+            #            end
+            #          }
+            #        end
+            #      end
+            #    else
+            #      if sp == pod.metadata.name
+            #        mab.li do
+            #          mab.a("href" => "?pod=#{pod.metadata.name}") do
+            #            mab.em(pod.metadata.name)
+            #          end
 
-                      if pod.status.conditions
-                        last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
-                        
-                        ((pod.spec.initContainers ? pod.spec.initContainers.collect { |c| c.name } : []) + pod.spec.containers.collect { |c| c.name }).each { |container_name|
-                          if sc == container_name
-                            mab.a("href" => "?pod=#{pod.metadata.name}&c=#{container_name}") do
-                              mab.p(container_name)
-                            end
+            #          if pod.status.conditions
+            #            last_sc = pod.status.conditions.sort_by { |c| c.lastTransitionTime }.last
+            #            
+            #            ((pod.spec.initContainers ? pod.spec.initContainers.collect { |c| c.name } : []) + pod.spec.containers.collect { |c| c.name }).each { |container_name|
+            #              if sc == container_name
+            #                mab.a("href" => "?pod=#{pod.metadata.name}&c=#{container_name}") do
+            #                  mab.p(container_name)
+            #                end
 
-                            if full_render
-                              mab.div.ooo do
-                                mab.progress
-                              end
-                            else
-                              output = DataSource.instance.ansi(DataSource.instance.logs(pod, container_name, last_sc.message))
-                              if output && output.length > 0
-                                mab.div.ooo do
-                                  mab.div.terminal do
-                                    mab.div(:class => "term-container") do
-                                      output
-                                    end
-                                  end
-                                end
-                              else
-                                mab.pre do
-                                  pod.status.containerStatuses
-                                end
-                              end
-                            end
-                          end
-                        }
-                      end
-                    end
-                  end
-                end
-              end
-            end
-
-            #raw_output = IO.popen({"COLUMNS" => "80", "LINES" => "48"}, "top -b -n 1")
-            #Process.wait rescue Errno::ECHILD
-
-            #output = DataSource.instance.ansi(raw_output) 
-
-            #mab.div.terminal do
-            #  mab.div(:class => "term-container") do
-            #    output
+            #                if full_render
+            #                  mab.div.ooo do
+            #                    mab.progress
+            #                  end
+            #                else
+            #                  output = DataSource.instance.ansi(DataSource.instance.logs(pod, container_name, last_sc.message))
+            #                  if output && output.length > 0
+            #                    mab.div.ooo do
+            #                      mab.div.terminal do
+            #                        mab.div(:class => "term-container") do
+            #                          output
+            #                        end
+            #                      end
+            #                    end
+            #                  else
+            #                    mab.pre do
+            #                      pod.status.containerStatuses
+            #                    end
+            #                  end
+            #                end
+            #              end
+            #            }
+            #          end
+            #        end
+            #      end
+            #    end
             #  end
             #end
+
+            raw_output = IO.popen({"COLUMNS" => "200", "LINES" => "48"}, "top -c -b -n 1")
+            Process.wait rescue Errno::ECHILD
+
+            output = DataSource.instance.ansi(raw_output) 
+
+            mab.div.terminal do
+              mab.div(:class => "term-container") do
+                output
+              end
+            end
 
           end
         end

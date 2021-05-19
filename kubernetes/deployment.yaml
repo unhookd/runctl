@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: runctl
+  name: runctl
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: runctl
+  template:
+    metadata:
+      labels:
+        app: runctl
+    spec:
+      hostPID: true
+      serviceAccount: runctl-account
+      terminationGracePeriodSeconds: 10
+      containers:
+      - command:
+        - "bundle"
+        - "exec"
+        - "rackup"
+        - "-o"
+        - "0.0.0.0"
+        - "-p"
+        - "9292"
+        - "config.ru"
+        image: runctl:latest
+        imagePullPolicy: IfNotPresent
+        name: runctl
+        ports:
+        - containerPort: 9292
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 200M
+          requests:
+            cpu: 200m
+            memory: 100M
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+...
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  name: runctl-service
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: app
+    nodePort: 31248
+    port: 9292
+    protocol: TCP
+    targetPort: 9292
+  selector:
+    app: runctl
+  sessionAffinity: None
+  type: NodePort
+...
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.class: wkndr
+  name: runctl-computer-vhost
+spec:
+  rules:
+  - host: runctl.bardin.haus
+    http:
+      paths:
+      - backend:
+          serviceName: runctl-service
+          servicePort: 9292
