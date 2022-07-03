@@ -21,7 +21,8 @@ li {
   overflow: auto;
   border: 3px solid grey;
   scroll-margin: 1em;
-  transition: border 0.756s
+  transition: border 0.756s;
+  margin: 0 2.5em 0 0;
 }
 
 #jump {
